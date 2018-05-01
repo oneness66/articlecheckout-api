@@ -9,9 +9,9 @@ from os import environ
 
 
 app = Flask(__name__)
-app.config['DEBUG']
-app.config.from_envvar('APP_SETTINGS')
-app.config['access_key']=environ.get('access_key')
+# app.config['DEBUG']
+# app.config.from_envvar('APP_SETTINGS')
+# app.config['access_key']=environ.get('access_key')
 
 
 
@@ -217,7 +217,7 @@ def add_article():
         phone = form.phone.data
         country = form.country.data
         url = "http://apilayer.net/api/validate"
-
+# Need to read the  access key from the environ using  app.config['access_key']
         querystring = {"access_key": "81f511599e67f381ac1ff12743ca4753",
                        "number": phone, "country_code": country, "format": "1"}
 
@@ -272,12 +272,12 @@ def edit_article(id):
 
     if request.method == 'POST' and form.validate():
         phone = request.form['phone']
-
+        country = request.form['country']
         # Create Cursor
         cur = mysql.connection.cursor()
         app.logger.info(phone)
         # Execute
-        cur.execute("UPDATE articles SET phone=%s WHERE id=%s", (phone, id))
+        cur.execute("UPDATE articles SET phone=%s,country=%s WHERE id=%s", (phone,country,id))
         # Commit to DB
         mysql.connection.commit()
 
