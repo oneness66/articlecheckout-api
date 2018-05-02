@@ -1,7 +1,7 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, request, logging, jsonify, json
 #from data import Articles
 from flask_mysqldb import MySQL
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from wtforms import Form, StringField, TextAreaField, PasswordField, validators,SelectField
 from passlib.hash import sha256_crypt
 from functools import wraps
 import requests
@@ -9,9 +9,9 @@ from os import environ
 
 
 app = Flask(__name__)
-app.config['DEBUG']
-app.config.from_envvar('APP_SETTINGS')
-app.config['access_key']=environ.get('access_key')
+# app.config['DEBUG']
+# app.config.from_envvar('APP_SETTINGS')
+# app.config['access_key']=environ.get('access_key')
 
 
 
@@ -204,7 +204,8 @@ def dashboard():
 
 class ArticleForm(Form):
     phone = StringField('Phone', [validators.Length(min=1, max=200)])
-    country = StringField('Country Code', [validators.Length(min=1, max=200)])
+    # Todo seperate list for choices
+    country = SelectField('Country Code',choices=[('INDIA','IN'),('Germany','GE')])
 
 # Add Article Checkout
 
@@ -217,7 +218,7 @@ def add_article():
         phone = form.phone.data
         country = form.country.data
         url = "http://apilayer.net/api/validate"
-
+        # Need to read the  access key from the environment using  app.config['access_key']
         querystring = {"access_key": "81f511599e67f381ac1ff12743ca4753",
                        "number": phone, "country_code": country, "format": "1"}
 
@@ -272,12 +273,12 @@ def edit_article(id):
 
     if request.method == 'POST' and form.validate():
         phone = request.form['phone']
-
+        country = request.form['country']
         # Create Cursor
         cur = mysql.connection.cursor()
         app.logger.info(phone)
         # Execute
-        cur.execute("UPDATE articles SET phone=%s WHERE id=%s", (phone, id))
+        cur.execute("UPDATE articles SET phone=%s,country=%s WHERE id=%s", (phone,country,id))
         # Commit to DB
         mysql.connection.commit()
 
